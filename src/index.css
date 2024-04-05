@@ -119,11 +119,15 @@ textarea {
 }
 
 .reactionButton {
-  margin: 0 0.25em 0 0;
+  margin: 0 0.4em 0 0;
   background: transparent;
   border: none;
   color: #000;
   font-size: 1rem;
+}
+
+.reactionButton:hover {
+  transform: scale(1.2);
 }
 
 .deleteButton {
