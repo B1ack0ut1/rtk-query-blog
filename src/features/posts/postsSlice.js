@@ -8,7 +8,7 @@ const postsAdapter = createEntityAdapter({
 
 const initialState = postsAdapter.getInitialState();
 
-export const extendedApiSlice = apiSlice.injectEndpoints({
+export const postsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getPosts: builder.query({
       query: () => "/posts",
@@ -109,14 +109,10 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
         // updateQueryData needs endpoint name and cache key arguments,
         // so it knows which piece of cache state to update
         const patchResult = dispatch(
-          extendedApiSlice.util.updateQueryData(
-            "getPosts",
-            undefined,
-            (draft) => {
-              const post = draft.entities[postId];
-              if (post) post.reactions = reactions;
-            }
-          )
+          postsApiSlice.util.updateQueryData("getPosts", undefined, (draft) => {
+            const post = draft.entities[postId];
+            if (post) post.reactions = reactions;
+          })
         );
         try {
           await queryFulfilled;
@@ -135,10 +131,10 @@ export const {
   useUpdatePostMutation,
   useDeletePostMutation,
   useAddReactionMutation,
-} = extendedApiSlice;
+} = postsApiSlice;
 
 // Returns the query result object
-export const selectPostsResult = extendedApiSlice.endpoints.getPosts.select();
+export const selectPostsResult = postsApiSlice.endpoints.getPosts.select();
 
 // Creates memoized selector
 const selectPostsData = createSelector(
