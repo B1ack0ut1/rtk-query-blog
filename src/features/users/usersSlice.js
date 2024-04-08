@@ -1,4 +1,8 @@
-import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import {
+  createEntityAdapter,
+  createSelector,
+  createSlice,
+} from "@reduxjs/toolkit";
 import axios from "axios";
 import { apiSlice } from "../api/apiSlice";
 
@@ -9,12 +13,13 @@ const initialState = usersAdapter.getInitialState();
 const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getUsers: builder.query({
-      query: () => "/posts",
-      transformResponse: (responseData) =>
-        usersAdapter.setAll(initialState, responseData),
+      query: () => "/users",
+      transformResponse: (responseData) => {
+        return usersAdapter.setAll(initialState, responseData);
+      },
       providesTags: (result, error, arg) => [
-        { type: "Post", id: "LIST" },
-        ...result.ids.map((id) => ({ type: "Post", id })),
+        { type: "User", id: "LIST" },
+        ...result.ids.map((id) => ({ type: "User", id })),
       ],
     }),
   }),
@@ -22,9 +27,41 @@ const usersApiSlice = apiSlice.injectEndpoints({
 
 export const { useGetUsersQuery } = usersApiSlice;
 
-export const selectAllUsers = (state) => state.users;
+export const selectUsersResult = usersApiSlice.endpoints.getUsers.select();
 
-export const selectUserById = (state, userId) =>
-  state.users.find((user) => user.id === userId);
+const selectUsersData = createSelector(selectUsersResult, (usersResult) => {
+  console.log(usersResult);
+  return usersResult?.data; // Normalized state object with ids & entities
+});
+
+// const emptyUsers = [];
+
+// export const selectAllUsers = createSelector(
+//   selectUsersResult,
+//   (usersResult) => {
+//     console.log(usersResult);
+//     return usersResult?.data ?? emptyUsers;
+//   }
+// );
+
+// export const selectUserById = createSelector(
+//   selectAllUsers,
+//   (state, userId) => userId,
+//   (users, userId) => users.find((user) => user.id === userId)
+// );
+
+export const {
+  selectAll: selectAllUsers,
+  selectById: selectUserById,
+  selectIds: selectUserIds,
+  // Pass in a selector that returns the posts slice of state
+} = usersAdapter.getSelectors(
+  (state) => selectUsersData(state) ?? initialState
+);
+
+// export const selectAllUsers = (state) => state.users;
+
+// export const selectUserById = (state, userId) =>
+//   state.users.find((user) => user.id === userId);
 
 export default usersApiSlice.reducer;

@@ -1,23 +1,26 @@
 import { useSelector } from "react-redux";
-import { selectUserById } from "./usersSlice";
+import { selectUserById, useGetUsersQuery } from "./usersSlice";
 import { Link, useParams } from "react-router-dom";
 
 import { useGetPostsByUserIdQuery } from "../posts/postsSlice";
 
 const UserPage = () => {
   const { userId } = useParams();
-  const user = useSelector((state) => selectUserById(state, Number(userId)));
 
   const {
     data: postsForUser,
-    isLoading,
+    isLoading: isLoadingPostsForUser,
     isSuccess,
     isError,
     error,
   } = useGetPostsByUserIdQuery(userId);
 
+  const { isLoading: isLoadingUsers } = useGetUsersQuery();
+
+  const user = useSelector((state) => selectUserById(state, Number(userId)));
+  console.log(user);
   let content;
-  if (isLoading) {
+  if (isLoadingPostsForUser || isLoadingUsers) {
     content = <p>Loading...</p>;
   } else if (isSuccess) {
     const { ids, entities } = postsForUser;

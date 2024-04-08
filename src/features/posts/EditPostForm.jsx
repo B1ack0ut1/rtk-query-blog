@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { selectPostById } from "./postsSlice";
+import { selectPostById, useGetPostsQuery } from "./postsSlice";
 import { useParams, useNavigate } from "react-router-dom";
 
-import { selectAllUsers } from "../users/usersSlice";
+import { selectAllUsers, useGetUsersQuery } from "../users/usersSlice";
 import { useUpdatePostMutation, useDeletePostMutation } from "./postsSlice";
 
 const EditPostForm = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
+
+  const { isLoading: isLoadingPosts } = useGetPostsQuery();
+  const { isLoading: isLoadingUsers } = useGetUsersQuery();
 
   const [updatePost, { isLoading }] = useUpdatePostMutation();
   const [deletePost] = useDeletePostMutation();
@@ -19,6 +22,16 @@ const EditPostForm = () => {
   const [title, setTitle] = useState(post?.title);
   const [content, setContent] = useState(post?.body);
   const [userId, setUserId] = useState(post?.userId);
+
+  useEffect(() => {
+    setTitle(post?.title);
+    setContent(post?.body);
+    setUserId(post?.userId);
+  }, [post]);
+
+  if (isLoadingPosts || isLoadingUsers) {
+    return <p>Loading...</p>;
+  }
 
   if (!post) {
     return (

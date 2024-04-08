@@ -3,7 +3,7 @@ import { useGetUsersQuery } from "../users/usersSlice";
 import { Link } from "react-router-dom";
 
 const PostAuthor = ({ userId }) => {
-  const { user: author } = useGetUsersQuery("getUsers", {
+  const { user: author } = useGetUsersQuery(null, {
     selectFromResult: ({ data, isLoading }) => ({
       user: data?.entities[userId],
     }),

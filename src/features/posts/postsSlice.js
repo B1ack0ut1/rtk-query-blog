@@ -39,7 +39,8 @@ export const postsApiSlice = apiSlice.injectEndpoints({
       transformResponse: (responseData) => {
         let min = 1;
         const loadedPosts = responseData.map((post) => {
-          if (!post?.date) post.date = sub(new Date(), { minute: min++ });
+          if (!post?.date)
+            post.date = sub(new Date(), { minute: min++ }).toISOString();
           if (!post?.reactions)
             post.reactions = {
               thumbsUp: 0,
@@ -137,10 +138,10 @@ export const {
 export const selectPostsResult = postsApiSlice.endpoints.getPosts.select();
 
 // Creates memoized selector
-const selectPostsData = createSelector(
-  selectPostsResult,
-  (postsResult) => postsResult.data // Normalized state object with ids & entities
-);
+const selectPostsData = createSelector(selectPostsResult, (postsResult) => {
+  console.log(postsResult);
+  return postsResult?.data; // Normalized state object with ids & entities
+});
 
 //getSelectors creates these selectors and we rename them with aliases using destructuring
 export const {

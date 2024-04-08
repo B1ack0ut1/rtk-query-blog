@@ -1,14 +1,20 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { selectAllUsers } from "../users/usersSlice";
+import { selectAllUsers, useGetUsersQuery } from "../users/usersSlice";
 import { useNavigate } from "react-router-dom";
 import { useAddNewPostMutation } from "./postsSlice";
 
 const AddPostForm = () => {
-  const [addNewPost, { isLoading }] = useAddNewPostMutation();
+  const [addNewPost, { isLoading: isLoadingPost }] = useAddNewPostMutation();
+  const {
+    isLoading: isLoadingUsers,
+    isSuccess,
+    isError,
+    error,
+  } = useGetUsersQuery();
 
-  const dispatch = useDispatch();
+  const users = useSelector(selectAllUsers);
 
   const navigate = useNavigate();
 
@@ -16,13 +22,11 @@ const AddPostForm = () => {
   const [content, setContent] = useState("");
   const [userId, setUserId] = useState("");
 
-  const users = useSelector(selectAllUsers);
-
   const onTitleChanged = (e) => setTitle(e.target.value);
   const onContentChanged = (e) => setContent(e.target.value);
   const onAuthorChanged = (e) => setUserId(e.target.value);
 
-  const canSave = [title, content, userId].every(Boolean) && !isLoading;
+  const canSave = [title, content, userId].every(Boolean) && !isLoadingPost;
 
   const onSavePostClicked = async () => {
     if (canSave) {
@@ -44,6 +48,8 @@ const AddPostForm = () => {
       {user.name}
     </option>
   ));
+
+  if (isLoadingPost || isLoadingUsers) return <p>Loading...</p>;
 
   return (
     <section>
